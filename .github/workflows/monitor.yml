@@ -10,10 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # 🔎 Paso de diagnóstico: comprueba que estén todos los secretos
+      - name: Check required secrets
+        env:
+          RECIPIENTS: ${{ secrets.RECIPIENTS }}
+          SENDER: ${{ secrets.SENDER }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        run: |
+          FAIL=0
+          for v in RECIPIENTS SENDER SMTP_HOST SMTP_PORT SMTP_SECURE SMTP_USER SMTP_PASS; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Missing $v"
+              FAIL=1
+            else
+              echo "$v OK"
+            fi
+          done
+          test "$FAIL" -eq 0
 
       - name: Run monitor
         env:
@@ -21,14 +46,14 @@ jobs:
           RUN_AT: '08:00'
           WINDOW_HOURS: '24'
           OVERLAP_MIN: '120'
-          RECIPIENTS: ${{ secrets.RECIPIENTS }}      # coma-separados
-          SENDER: ${{ secrets.SENDER }}              # remitente verificado en Brevo
+          RECIPIENTS: ${{ secrets.RECIPIENTS }}
+          SENDER: ${{ secrets.SENDER }}
           # === SMTP (Brevo) ===
           SMTP_HOST: ${{ secrets.SMTP_HOST }}        # smtp-relay.brevo.com
           SMTP_PORT: ${{ secrets.SMTP_PORT }}        # 587
           SMTP_SECURE: ${{ secrets.SMTP_SECURE }}    # starttls
-          SMTP_USER: ${{ secrets.SMTP_USER }}        # tu login Brevo
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}        # tu SMTP key
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
           # Opcionales
           NEWSAPI_KEY: ${{ secrets.NEWSAPI_KEY }}
           BING_NEWS_KEY: ${{ secrets.BING_NEWS_KEY }}
