@@ -1,0 +1,27 @@
+name: Monitor LALIGA Tebas
+  schedule:
+    - cron: '5 7 * * *'   # 07:05 UTC ≈ 08:05 Europe/Madrid (invierno)
+  workflow_dispatch: {}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.1on:1'
+      - run: pip install -r requirements.txt
+      - env:
+          TZ: Europe/Madrid
+          RUN_AT: '08:00'
+          WINDOW_HOURS: '24'
+          OVERLAP_MIN: '120'
+          RECIPIENTS: '${{ secrets.RECIPIENTS }}'   # coma-separados
+          SENDER: 'monitor@tu-dominio.com'
+          # === SMTP genérico (rellena según proveedor) ===
+          SMTP_HOST: '${{ secrets.SMTP_HOST }}'     # Gmail: smtp.gmail.com | Brevo: smtp-relay.brevo.com
+          SMTP_PORT: '${{ secrets.SMTP_PORT }}'     # Gmail: 465 | Brevo: 587 o 465
+          SMTP_SECURE: '${{ secrets.SMTP_SECURE }}' # 'ssl' o 'starttls'
+          SMTP_USER: '${{ secrets.SMTP_USER }}'     # Gmail: tu@gmail.com | Brevo: SMTP login
+          SMTP_PASS: '${{ secrets.SMTP_PASS }}'     # Gmail: App Password | Brevo: SMTP key
+        run: python monitor.py
