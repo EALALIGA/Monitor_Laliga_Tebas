@@ -173,16 +173,19 @@ def classify_category(title):
 
 
 def near_dedupe(items, threshold=0.88):
-    if not items: return []
-    texts = [i['title'] for i in items]
+    if not items:
+        return []
+    texts = [i["title"] for i in items]
     vec = TfidfVectorizer(min_df=1).fit_transform(texts)
     sim = cosine_similarity(vec)
     n = len(items)
- removed = set()
+    removed = set()
     for i in range(n):
-        if i in removed: continue
-        for j in range(i+1, n):
-            if j in removed: continue
+        if i in removed:
+            continue
+        for j in range(i + 1, n):
+            if j in removed:
+                continue
             if sim[i, j] >= threshold:
                 removed.add(j)
     return [it for k, it in enumerate(items) if k not in removed]
