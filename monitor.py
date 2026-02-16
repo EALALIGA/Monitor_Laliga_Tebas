@@ -239,33 +239,40 @@ def build_email_payload(items):
     date_str = now_local().strftime('%Y-%m-%d')
     laliga = [i for i in items if i['categoria'] == 'LALIGA']
     tebas  = [i for i in items if i['categoria'] == 'JAVIER_TEBAS']
+
     def fmt_line(i):
         tloc = i['published'].astimezone(TZ).strftime('%H:%M')
         return f"- {i['title']} — {i['url']} — {tloc}"
-    text = [f"[LALIGA | Javier Tebas] Monitor diario — {date_str}"]
-    text.append("Ventana: 00:00 → 23:59 (Europe/Madrid)
-")
-    text.append(f"LALIGA ({len(laliga)})")
-    text += [fmt_line(i) for i in laliga]
-    text.append("")
-    text.append(f"Javier Tebas ({len(tebas)})")
-    text += [fmt_line(i) for i in tebas]
-    text.append("")
-    text.append(f"Totales: {len(items)} | Fuentes: RSS/Agregadores")
-    text_body = "
-".join(text)
+
+    lines = []
+    lines.append(f"[LALIGA | Javier Tebas] Monitor diario — {date_str}")
+    lines.append("Ventana: 00:00 -> 23:59 (Europe/Madrid)")
+    lines.append("")
+    lines.append(f"LALIGA ({len(laliga)})")
+    lines.extend(fmt_line(i) for i in laliga)
+    lines.append("")
+    lines.append(f"Javier Tebas ({len(tebas)})")
+    lines.extend(fmt_line(i) for i in tebas)
+    lines.append("")
+    lines.append(f"Totales: {len(items)} | Fuentes: RSS/Agregadores")
+    text_body = "\n".join(lines)
 
     def list_html(lst):
-        return "".join([f"<li><a href='{i['url']}'>{i['title']}</a> <em>{i['published'].astimezone(TZ).strftime('%H:%M')}</em></li>" for i in lst])
-    html = f"""
-    <h2>[LALIGA | Javier Tebas] Monitor diario — {date_str}</h2>
-    <p>Ventana: 00:00 → 23:59 (Europe/Madrid)</p>
-    <h3>LALIGA ({len(laliga)})</h3><ol>{list_html(laliga)}</ol>
-    <h3>Javier Tebas ({len(tebas)})</h3><ol>{list_html(tebas)}</ol>
-    <p>Totales: {len(items)} | Fuentes: RSS/Agregadores</p>
-    """
+        return "".join(
+            f"<li><a href='{x['url']}'>{x['title']}</a> "
+            f"<em>{x['published'].astimezone(TZ).strftime('%H:%M')}</em></li>"
+            for x in lst
+        )
 
-    return text_body, html
+    html_body = (
+        f"<h2>[LALIGA | Javier Tebas] Monitor diario — {date_str}</h2>"
+        f"<p>Ventana: 00:00 - 23:59 (Europe/Madrid)</p>"
+        f"<h3>LALIGA ({len(laliga)})</h3><ol>{list_html(laliga)}</ol>"
+        f"<h3>Javier Tebas ({len(tebas)})</h3><ol>{list_html(tebas)}</ol>"
+        f"<p>Totales: {len(items)} | Fuentes: RSS/Agregadores</p>"
+    )
+
+    return text_body, html_body
 
 
 def send_email(items):
