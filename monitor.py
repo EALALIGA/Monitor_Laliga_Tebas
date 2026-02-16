@@ -63,14 +63,14 @@ def in_window(dt_utc):
 
 
 def normalize_url(url):
-    if not url: return url
+    if not url:
+        return url
     url = re.sub(r"[?#].*$", "", url)
     return url
 
-
 def hash_item(url, title):
     base = (normalize_url(url) or "") + "|" + (title or "")
-     return hashlib.sha256(base.encode("utf-8")).hexdigest()
+    return hashlib.sha256(base.encode("utf-8")).hexdigest()
 
 
 def fetch_rss():
