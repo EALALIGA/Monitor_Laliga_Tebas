@@ -17,7 +17,7 @@ jobs:
           WINDOW_HOURS: '24'
           OVERLAP_MIN: '120'
           RECIPIENTS: '${{ secrets.RECIPIENTS }}'   # coma-separados
-          SENDER: 'monitor@tu-dominio.com'
+          SENDER: ${{ secrets.SENDER }}
           # === SMTP genérico (rellena según proveedor) ===
           SMTP_HOST: '${{ secrets.SMTP_HOST }}'     # Gmail: smtp.gmail.com | Brevo: smtp-relay.brevo.com
           SMTP_PORT: '${{ secrets.SMTP_PORT }}'     # Gmail: 465 | Brevo: 587 o 465
